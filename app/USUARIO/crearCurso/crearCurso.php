@@ -261,7 +261,7 @@ try {
       </div>
     </div>
 </div>
-<script src="recursos/js/jquery.Rut.min.js"></script>
+<script src="recursos/js/jquery.rut.min.js"></script>
 <script>
     var rama = "<?php echo Origen::RAMA; ?>";
     var docFis = "<?php echo Origen::DOC_FIS; ?>";

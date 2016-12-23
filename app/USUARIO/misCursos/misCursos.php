@@ -56,6 +56,8 @@ try {
                         </tr>
                         <?php  }else{
                             foreach ($cursos as $key => $value) {
+                                $fechaInicio = new DateTime($value['fecha_inicio']);
+                                $fechaProceso = new DateTime($value['fecha_proceso']);
                             ?>
                                 <tr class="padre" data-identi="<?php echo $value['id'] ;?>">
                                     <th>
@@ -66,57 +68,27 @@ try {
                                         </a>
                                     </th>
                                     <th>
-                                        <?php echo $value['id']; ?>
+                                        <?=$value['id']?>
                                     </th>
                                     <th>
-                                        <?php echo $value['tipo_curso']; ?>
+                                        <?=$value['tipo_curso']?>
                                     </th>
                                     <th class="refactor-rut">
-                                        <?php echo $value['empresa']; ?>
+                                        <?=$value['empresa']?>
                                     </th>
                                     <th class="refactor-rut">
-                                        <?php echo $value['relator']; ?>
+                                        <?=$value['relator']?>
                                     </th>
                                     <th>
-                                        <?php echo $value['nombre']; ?>
+                                        <?=$value['nombre']?>
                                     </th>
                                     <th>
-                                        <?php echo $value['fecha_inicio']; ?>
+                                        <?=$fechaInicio->format('d-m-Y')?>
                                     </th>
                                     <th>
-                                        <?php echo $value['fecha_proceso']; ?>
+                                        <?=$fechaInicio->format('d-m-Y H:i:s')?>
                                     </th>
                                 </tr>
-<!--                                <tr class="hijo id-<?php echo $value['id']; ?>">
-                                    <th></th>
-                                    <th></th>
-                                    <th colspan="6">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>N°</th>
-                                                    <th>Rut</th>
-                                                    <th>Nombre</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php  if($value['participantes'] == null){ ?>
-                                                <tr class="no-data">
-                                                    <th scope="row" colspan="7" class="text-center">-- SIN DATOS PARA MOSTRAR --</th>
-                                                </tr>
-                                                <?php  }else{
-                                                    foreach ($value['participantes'] as $pKey => $pValue) {?>
-                                                        <tr>
-                                                            <th><?php echo $pValue['id']; ?></th>
-                                                            <th class="refactor-rut"><?php echo $pValue['rut'];?></th>
-                                                            <th><?php echo $pValue['nombre'];?></th>
-                                                        </tr>
-                                                <?php }} ?>
-                                                    
-                                            </tbody>
-                                        </table>
-                                    </th>
-                                </tr>-->
                             <?php
                             }    
                         }

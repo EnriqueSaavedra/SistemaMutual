@@ -69,9 +69,18 @@ class ParticipanteDAO extends BDconn{
         return false;
     }
 
+    public function actualizarParticipante(Participante $parti) {
+        $sm = new SQLManager($this->pdo, 'participante', array('id'), $parti);
+        $sql = $sm->getUpdate();
+        if($this->pdo->exec($sql))
+            return true;
+        
+        return false;
+    }
 
-    public function crearRelacionPlanilla(Participante $participante,$idCurso) {
+    public function crearRelacionPlanilla(Participante $participante,$idCurso,$user) {
         $this->pdo->beginTransaction();
+        
         try {
             $id = $this->getParticipanteIDByRut($participante->rut);
             if($id == null){
@@ -79,6 +88,7 @@ class ParticipanteDAO extends BDconn{
                 $planilla = new Planilla();
                 $planilla->curso = $idCurso;
                 $planilla->participante = $participante->id;
+                $planilla->creado_por = $user;
                 $planilla->estado = 1;
                 $sm = new SQLManager($this->pdo, 'planilla', array('id'), $planilla);
                 $sql = $sm->getInsert();
@@ -86,11 +96,16 @@ class ParticipanteDAO extends BDconn{
                     throw new Exception("Imposible crear registro relacion planilla.");
                 }
             }else{
+                $participante->id = $id;
+                if(!$this->actualizarParticipante($participante))
+                    throw new Exception("Imposble actualizar Participante.");
+                
                 if(!$this->verificaRelacionPlanilla($id, $idCurso))
                     throw new Exception("Relacion duplicada.");
-                $participante->id = $id;
+                
                 $planilla = new Planilla();
                 $planilla->curso = $idCurso;
+                $planilla->creado_por = $user;
                 $planilla->participante = $id;
                 $planilla->estado = 1;
                 $sm = new SQLManager($this->pdo, 'planilla', array('id'), $planilla);

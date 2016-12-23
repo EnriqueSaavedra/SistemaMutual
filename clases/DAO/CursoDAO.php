@@ -225,7 +225,7 @@ class CursoDAO extends BDconn {
         $curso->usuario = $_SESSION['USUARIO']['ID'];
         $curso->empresa = $empresaID;
         $curso->relator = $relatorID;
-        $curso->fecha_inicio = $dateIni->format('Y/m/d');
+        $curso->fecha_inicio = $dateIni->format('Y/m/d H:i:s');
         $idCursoRepetido = $this->validarCursoRepetido(
                 $curso->tipo_curso,
                 $curso->fecha_inicio,
@@ -329,10 +329,11 @@ class CursoDAO extends BDconn {
         $sql = "SELECT 
                     COUNT(1) 
                 FROM 
-                    curso
+                    planilla as p LEFT JOIN
+                    curso as c ON c.id = p.curso
                 WHERE
-                    fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."' AND
-                    usuario = ".$_SESSION['USUARIO']['ID'];
+                    c.fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."' AND
+                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -346,11 +347,12 @@ class CursoDAO extends BDconn {
         $sql = "SELECT 
                     COUNT(1) 
                 FROM 
-                    curso
+                    planilla as p LEFT JOIN
+                    curso as c ON c.id = p.curso
                 WHERE
-                    EXTRACT(YEAR FROM fecha_proceso) = '".$dateActual->format('Y')."' AND
-                    EXTRACT(MONTH FROM fecha_proceso) = '".$dateActual->format('m')."' AND
-                    usuario = ".$_SESSION['USUARIO']['ID'];
+                    EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND
+                    EXTRACT(MONTH FROM c.fecha_proceso) = '".$dateActual->format('m')."' AND
+                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -365,10 +367,11 @@ class CursoDAO extends BDconn {
         $sql = "SELECT 
                     COUNT(1) 
                 FROM 
-                    curso
+                    planilla as p LEFT JOIN
+                    curso as c ON c.id = p.curso
                 WHERE
-                    EXTRACT(YEAR FROM fecha_proceso) = '".$dateActual->format('Y')."' AND
-                    usuario = ".$_SESSION['USUARIO']['ID'];
+                    EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND
+                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -382,9 +385,10 @@ class CursoDAO extends BDconn {
         $sql = "SELECT 
                     COUNT(1) 
                 FROM 
-                    curso
+                    planilla as p LEFT JOIN
+                    curso as c ON c.id = p.curso
                 WHERE
-                    usuario = ".$_SESSION['USUARIO']['ID'];
+                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -394,14 +398,17 @@ class CursoDAO extends BDconn {
     
     public function getIngresosHoyAllUsuarios() {
         require_once(Link::include_file('clases/DBO/Usuario.php'));
+        $dateActual = new DateTime();
         $sql = "SELECT
                     u.nombre,
                     (SELECT
                         COUNT(1)
                     FROM
-                        curso as c
+                        planilla as p LEFT JOIN
+                        curso as c ON p.curso = c.id
                     WHERE 
-                        c.usuario = u.id
+                        c.fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."' AND
+                        p.creado_por = u.id
                     ) as total
                 FROM 
                     usuario as u 
@@ -427,7 +434,7 @@ class CursoDAO extends BDconn {
         $fechTer = $fechTer->format('Y-m-d');
         $sql = "SELECT
                     c.id as id_curso,
-                    EXTRACT(MONTH FROM c.fecha_inicio) as fecha_proceso,
+                    c.fecha_proceso as fecha_proceso,
                     (c.fecha_inicio + interval '3 years') as vigencia_capacitacion,
                     c.fecha_inicio,
                     c.fecha_inicio as fecha_termino,
@@ -500,7 +507,7 @@ class CursoDAO extends BDconn {
                     LEFT JOIN usuario as u ON c.usuario = u.id
                 WHERE 
                     c.participantes > 0 AND
-                    (c.fecha_inicio,c.fecha_inicio) OVERLAPS('$fechIni'::DATE, '$fechTer'::DATE)
+                    (c.fecha_proceso,c.fecha_proceso) OVERLAPS('$fechIni'::DATE, '$fechTer'::DATE)
                 ORDER BY c.id ASC;
             ";
             try{

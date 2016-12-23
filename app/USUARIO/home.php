@@ -3,6 +3,7 @@ require_once(Link::include_file('clases/DAO/CursoDAO.php'));
 
 try {
     $cursoDao = new CursoDAO();
+    
     $ingresosDiarios   = $cursoDao->getIngresosHoy();
     $ingresosMes = $cursoDao->getIngresosMes();
     $ingresosAnno   = $cursoDao->getIngresosAnno();

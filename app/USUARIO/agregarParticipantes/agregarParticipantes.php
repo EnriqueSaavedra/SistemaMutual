@@ -78,6 +78,7 @@ try {
 }
 if($curso != null){
 ?>
+<input type="hidden" name="usuario" id="usuario" value="<?=$_SESSION['USUARIO']['ID']?>"/>
 <div class="container-fluid">
     <div class="pagina-titulo panel panel-default ">
       <div class="panel-body linkeable">
@@ -220,7 +221,7 @@ if($curso != null){
                         <div class="col-md-3 col-lg-3">
                             <div class="form-group">
                                 <label for="autocomplete">Email</label>
-                                <input type="email" class="form-control" required="" name="participanteEmail" id="participanteEmail" placeholder="ejemplo@gmail.com">
+                                <input type="email" class="form-control" name="participanteEmail" id="participanteEmail" placeholder="ejemplo@gmail.com">
                             </div>
                         </div>
                         <div class="col-md-3 col-lg-3">
@@ -309,7 +310,7 @@ if($curso != null){
     <div class="row">
         
         <div class="col-md-4 col-lg-4">
-            <form name="guardar-datos" action="" method="POST">
+            <form name="eliminar-datos" action="" method="POST">
                 <input type="hidden" name="idCurso" value="<?php echo $curso->id; ?>" />
                 <input type="hidden" name="Submit" value="Eliminar" />
                 <button type="submit" class="btn btn-danger btn-block">Eliminar Curso</button>
@@ -325,7 +326,7 @@ if($curso != null){
     </div>
     
 </div>
-<script src="recursos/js/jquery.Rut.min.js"></script>
+<script src="recursos/js/jquery.rut.min.js"></script>
 <script>
     var restAgregarParticipante = "<?php echo Link::getRuta("USUARIO","rest/crearCurso/restAgregarParticipante"); ?>";
     var restEliminarParticipante = "<?php echo Link::getRuta("USUARIO","rest/crearCurso/restEliminarParticipante"); ?>";
@@ -342,6 +343,12 @@ if($curso != null){
 //            alert("caca");
             $('#modalMsjJquery button').focus()
           });
+          
+        $('form[name="eliminar-datos"]').click(function (){
+            if(!confirm("Realmente desea eliminar el curso?.")){
+                return false;
+            }
+        });
         window.eliminarClick = function (e){
             var id = $(e).data('id');
             var curso = $('#curso').val();
@@ -443,6 +450,12 @@ if($curso != null){
                     $('#participanteEdad').prop("disabled",false);
                     $('#participanteGenero').prop("disabled",false);
                     $('#participanteGenero').selectpicker('refresh');
+                    if(data.data == null){
+                        $('#participanteNombre').focus();
+                    }else{
+                        $('button.crear').focus();
+                    }
+                        
                 }).fail(function( jqXHR, textStatus, errorThrown ) {
                     $.modalMsj('error',"Error Fatal, favor reportar el problema.");
                     $('#participanteNombre').prop("disabled",false);
@@ -462,10 +475,12 @@ if($curso != null){
             var edad = $('#participanteEdad').val();
             var genero = $('#participanteGenero').val();
             var curso = $('#curso').val();
+            var usuario = $('#usuario').val();
             $.ajax({
                 method:'POST',
                 url:restAgregarParticipante,
                 data:{
+                    usuario:usuario,
                     curso:curso,
                     rut:rut,
                     nombre:nombre,
@@ -474,8 +489,8 @@ if($curso != null){
                     genero:genero
                 }
             }).done(function (data, textStatus, jqXHR){
-                data = JSON.parse(data);
                 console.log(data,"data");
+                data = JSON.parse(data);
                 if(data.succes && data.data != null){
                     $('.no-data').remove();
                     var btn = $('<th><button class="btn btn-danger eliminar-participante" onclick="eliminarClick(this);" type="button" data-id="'+data.data.id+'"><span class="glyphicon glyphicon-trash"></span></button></th>');

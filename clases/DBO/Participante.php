@@ -99,9 +99,19 @@ class Planilla extends DBO{
     public $curso;
     public $participante;
     public $estado;
+    public $creado_por;
     public $create_time;
     public $update_time;
     
+    function getCreado_por() {
+        return $this->creado_por;
+    }
+
+    function setCreado_por($creado_por) {
+        $this->creado_por = $creado_por;
+    }
+
+        
     function getId() {
         return $this->id;
     }

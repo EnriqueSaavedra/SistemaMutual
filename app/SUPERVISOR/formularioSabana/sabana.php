@@ -38,11 +38,14 @@ try{
     /**1.  consultar sap_maestro_cartera_v3 **/
 
     foreach ($sabana as $value) {
+        $fecha_proceso = new DateTime($value['fecha_proceso']);
+        $fecha_inicio = new DateTime($value['fecha_inicio']);
+        $fecha_termino = new DateTime($value['fecha_termino']);
         $Datos .=   strtoupper($value['id_curso']).";".
-                    strtoupper($value['fecha_proceso']).";".
+                    strtoupper($fecha_proceso->format('d-m-Y')).";".
                     strtoupper($value['vigencia_capacitacion']).";".
-                    strtoupper($value['fecha_inicio']).";".
-                    strtoupper($value['fecha_termino']).";".
+                    strtoupper($fecha_inicio->format('d-m-Y')).";".
+                    strtoupper($fecha_termino->format('d-m-Y')).";".
                     strtoupper($value['desc1']).";".
                     strtoupper($value['cod1']).";".
                     strtoupper($value['desc2']).";".

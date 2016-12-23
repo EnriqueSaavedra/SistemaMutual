@@ -12,6 +12,7 @@ try {
     $participanteDao = new ParticipanteDAO();
     $participante = new Participante();
     
+    $idUSuario = $_POST['usuario'];
     $idCurso = $_POST['curso'];
     $participante->nombre = $_POST['nombre'];
     $participante->setRutCompleto($_POST['rut']); 
@@ -20,7 +21,7 @@ try {
     $participante->sexo = $_POST['genero'];
     
     
-    $respuesta = $participanteDao->crearRelacionPlanilla($participante,$idCurso);
+    $respuesta = $participanteDao->crearRelacionPlanilla($participante,$idCurso,$idUSuario);
     
     if($respuesta == null)
         throw new Exception("Problemas al agregar Registro");
