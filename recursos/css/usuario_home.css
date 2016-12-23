@@ -1,0 +1,40 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 08-dic-2016, 21:36:32
+    Author     : Sammy Guergachi <sguergachi at gmail.com>
+*/
+
+.bienvenida{
+    margin-top: 100px !important;
+}
+ul.estadisticas-home{
+    margin-top: 120px !important;
+    width: 10% !important;
+}
+.pagina-titulo{
+    margin-top: 20px;
+    font-size: 20px;
+}
+.jumbotron-white{
+    padding: 10px !important;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    min-height: 300px;
+}
+.listado-participantes{
+    min-height: 100px !important;
+}
+.titulo-form-ingreso{
+    border-bottom: 1px solid #ddd;
+}
+
+.crear{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 20px !important;
+}
