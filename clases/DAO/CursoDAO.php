@@ -522,4 +522,21 @@ class CursoDAO extends BDconn {
                 
             }
     }
+    
+    public function getAllIngresosHoy() {
+        $dateActual = new DateTime();
+        
+        $sql = "SELECT 
+                    COUNT(1) 
+                FROM 
+                    planilla as p LEFT JOIN
+                    curso as c ON c.id = p.curso
+                WHERE
+                    c.fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."'";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount()<= 0)
+            return null;
+        
+        return $query->fetchColumn();
+    }
 }

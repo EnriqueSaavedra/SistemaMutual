@@ -103,7 +103,7 @@ function printArray($array){
                             <ul class="nav navbar-nav navbar-right">
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'formularioSabana/formularioSabana'); ?>" class="page-scroll adn-nav-title">EXTRAER SABANA</a></li>
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'adminUsuario/adminUsuario'); ?>" class="page-scroll adn-nav-title">ADMIN USUARIOS</a></li>
-                                <li><a href="#" class="page-scroll adn-nav-title"><del>ESTADISTICAS DEL EQUIPO</del></a></li>
+                                <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'estadisticas/estadisticas'); ?>" class="page-scroll adn-nav-title">ESTADISTICAS DEL EQUIPO</a></li>
                                 <li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>
                                 <!--<li><a href="#servicios" class="page-scroll adn-nav-title">servicios</a></li>-->
                                 <li class="dropdown">
