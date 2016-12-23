@@ -51,7 +51,7 @@ try {
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">
-                Bienvenido al Sistema de Supervisión ->ComiitTest<-
+                Bienvenido al Sistema de Supervisión
             </h1>
         </div>
         <div class="col-md-6">
