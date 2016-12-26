@@ -105,7 +105,7 @@ try {
                 }
             },
             title: {
-                text: 'Registros por Usuario Hoy (Vivo)'
+                text: 'Rechazos por Usuario Hoy (Vivo)'
             },
             xAxis: {
                 type: 'datetime',
