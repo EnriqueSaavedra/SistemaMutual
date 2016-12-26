@@ -192,4 +192,35 @@ class UsuarioDAO extends BDconn{
         return $this->pdo->exec($sql);
     }
     
+    public function getAllUsuarioId() {
+        $sql = "SELECT 
+                    u.id
+                FROM 
+                    usuario as u LEFT JOIN
+                    grupo_usuario as gp ON u.tipo_usuario = gp.id
+                WHERE 
+                    gp.nombre = '".Grupo_usuario::USUARIO."' AND 
+                    u.activo = 't'
+                ORDER BY u.id";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0)
+            return null;
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getAllUsuarioNombre() {
+        $sql = "SELECT 
+                    u.nombre
+                FROM 
+                    usuario as u LEFT JOIN
+                    grupo_usuario as gp ON u.tipo_usuario = gp.id
+                WHERE 
+                    gp.nombre = '".Grupo_usuario::USUARIO."' AND 
+                    u.activo = 't'
+                ORDER BY u.id";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0)
+            return null;
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

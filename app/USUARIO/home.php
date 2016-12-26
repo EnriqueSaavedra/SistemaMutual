@@ -3,12 +3,12 @@ require_once(Link::include_file('clases/DAO/CursoDAO.php'));
 
 try {
     $cursoDao = new CursoDAO();
+    $userID = $_SESSION['USUARIO']['ID'];
+    $ingresosDiarios   = $cursoDao->getIngresosHoy($userID);
+    $ingresosMes = $cursoDao->getIngresosMes($userID);
+    $ingresosAnno   = $cursoDao->getIngresosAnno($userID);
+    $ingresosTotales   = $cursoDao->getIngresosTotales($userID);
     
-    $ingresosDiarios   = $cursoDao->getIngresosHoy();
-    $ingresosMes = $cursoDao->getIngresosMes();
-    $ingresosAnno   = $cursoDao->getIngresosAnno();
-    $ingresosTotales   = $cursoDao->getIngresosTotales();
-//    $promedioDiario    = $cursoDao->getIngresosDiarios();
 }catch (UserException $e) {
     $app->addMessage($e->getMessage(), $e->getCode());
 } catch (Exception $e){

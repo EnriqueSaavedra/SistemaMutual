@@ -243,9 +243,11 @@ class CursoDAO extends BDconn {
             $curso->id = $query->fetchColumn();
             return $curso;
         } else {
+            $dateActual = new DateTime();
             $curso->id = $idCursoRepetido;
             $rechazos = new Rechazos();
             $rechazos->transformarCursoRechazo($curso);
+            $rechazos->fecha_proceso = $dateActual->format('Y-m-d H:i:s');
             $sm = new SQLManager($this->pdo, 'rechazos', array('id'), $rechazos);
             $sql = $sm->getInsert();
             if(!$this->pdo->query($sql))
@@ -323,7 +325,7 @@ class CursoDAO extends BDconn {
     /*
      * Estadisticas Personales
      */
-    public function getIngresosHoy() {
+    public function getIngresosHoy($userID) {
         $dateActual = new DateTime();
         
         $sql = "SELECT 
@@ -333,7 +335,7 @@ class CursoDAO extends BDconn {
                     curso as c ON c.id = p.curso
                 WHERE
                     c.fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."' AND
-                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
+                    p.creado_por = ".$userID;
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -341,7 +343,7 @@ class CursoDAO extends BDconn {
         return $query->fetchColumn();
     }
     
-    public function getIngresosMes() {
+    public function getIngresosMes($userID) {
         $dateActual = new DateTime();
         
         $sql = "SELECT 
@@ -352,7 +354,7 @@ class CursoDAO extends BDconn {
                 WHERE
                     EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND
                     EXTRACT(MONTH FROM c.fecha_proceso) = '".$dateActual->format('m')."' AND
-                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
+                    p.creado_por = ".$userID;
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -361,7 +363,7 @@ class CursoDAO extends BDconn {
         
     }
     
-    public function getIngresosAnno() {
+    public function getIngresosAnno($userID) {
         $dateActual = new DateTime();
         
         $sql = "SELECT 
@@ -371,7 +373,7 @@ class CursoDAO extends BDconn {
                     curso as c ON c.id = p.curso
                 WHERE
                     EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND
-                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
+                    p.creado_por = ".$userID;
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -379,7 +381,7 @@ class CursoDAO extends BDconn {
         return $query->fetchColumn();
     }
     
-    public function getIngresosTotales() {
+    public function getIngresosTotales($userID) {
         $dateActual = new DateTime();
         
         $sql = "SELECT 
@@ -388,7 +390,7 @@ class CursoDAO extends BDconn {
                     planilla as p LEFT JOIN
                     curso as c ON c.id = p.curso
                 WHERE
-                    p.creado_por = ".$_SESSION['USUARIO']['ID'];
+                    p.creado_por = ".$userID;
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount()<= 0)
             return null;
@@ -425,7 +427,6 @@ class CursoDAO extends BDconn {
     /*
      * Fin estadisticas personales
      */
-    
     
     public function getSabana($fechIni,$fechTer,$tipoDescarga) {
         $fechIni = new DateTime($fechIni);
@@ -539,4 +540,62 @@ class CursoDAO extends BDconn {
         
         return $query->fetchColumn();
     }
+    
+    public function getAllIngresosMes() {
+        $dateActual = new DateTime();
+        $sql = "SELECT 
+                    COUNT(1) as ingresos
+                FROM
+                    planilla as p LEFT JOIN
+                    curso as c ON p.curso = c.id LEFT JOIN
+                    usuario as u ON c.usuario = u.id LEFT JOIN
+                    grupo_usuario as gp ON u.tipo_usuario = gp.id
+                WHERE
+                    u.activo = 't' AND
+                    (EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND EXTRACT(MONTH FROM c.fecha_proceso) = '".$dateActual->format('m')."') AND
+                    gp.nombre = '".Grupo_usuario::USUARIO."'";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0)
+            return null;
+        
+        return $query->fetchColumn();
+    }
+    
+    public function getAllCursosMes() {
+        $dateActual = new DateTime();
+        $sql = "SELECT
+                    COUNT(1) as curso
+                FROM
+                    curso as c LEFT JOIN
+                    usuario as u ON c.usuario = u.id LEFT JOIN
+                    grupo_usuario gp ON u.tipo_usuario = gp.id
+                WHERE
+                    u.activo = 't' AND
+                    (EXTRACT(YEAR FROM c.fecha_proceso) = '".$dateActual->format('Y')."' AND EXTRACT(MONTH FROM c.fecha_proceso) = '".$dateActual->format('m')."') AND
+                    gp.nombre = '".Grupo_usuario::USUARIO."'";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0)
+            return null;
+        
+        return $query->fetchColumn();
+    }
+    
+    public function getRechazosHoy($userID) {
+        $dateActual = new DateTime();
+        
+        $sql = "SELECT 
+                    COUNT(1) 
+                FROM 
+                    rechazos as r
+                WHERE
+                    r.fecha_proceso >= '".$dateActual->format('Y-m-d 00:00:00')."' AND
+                    r.usuario = ".$userID;
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount()<= 0)
+            return null;
+        
+        return $query->fetchColumn();
+    }
+    
+    
 }

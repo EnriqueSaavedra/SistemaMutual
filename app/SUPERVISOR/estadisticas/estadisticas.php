@@ -18,12 +18,11 @@ global $chart;
     <div class="row">
         <div class="col-md-3 col-lg-3">
             <div class="list-group">
-                <a href="#" class="list-group-item active" data-chart="<?=Link::getRuta("SUPERVISOR","estadisticas/chartEstadisticas/ingresoDiario")?>" data-rest="<?=Link::getRuta("SUPERVISOR","rest/estadisticas/ingresoDiario")?>">
-                    Ingresos Hoy
-                </a>
-                <a href="#" class="list-group-item" data-chart="" data-rest="">Registros Mes</a>
-                <a href="#" class="list-group-item" data-chart="" data-rest="">Ingresos Por Usuario</a>
-                <a href="#" class="list-group-item" data-chart="" data-rest="">Rechazos Por Usuario</a>
+                <a href="<?=Link::getRutaHref('SUPERVISOR', 'estadisticas/estadisticas')?>" class="list-group-item active">Ingresos Hoy</a>
+                <a href="<?=Link::getRutaHref('SUPERVISOR', 'estadisticas/chartEstadisticas/ingresoPorUsuario')?>" class="list-group-item" data-chart="" data-rest="">Ingresos por Digitador</a>
+                <a href="<?=Link::getRutaHref('SUPERVISOR', 'estadisticas/chartEstadisticas/ingresoMensual')?>" class="list-group-item" >Registros Mes</a>
+<!--                <a href="#" class="list-group-item" data-chart="" data-rest="">Ingresos Por Usuario</a>-->
+                <a href="<?=Link::getRutaHref('SUPERVISOR', 'estadisticas/chartEstadisticas/rechazosPorUsuario')?>" class="list-group-item" data-chart="" data-rest="">Rechazos Por Usuario</a>
             </div>
         </div>
         <div class="col-md-9 col-lg-9" id="chart-container">
@@ -31,53 +30,63 @@ global $chart;
                 <div class="pagina-titulo panel panel-default">
                     <div class="panel-body text-center">
                         <img src="recursos/imagenes/loading.gif" width="120px" />
-                    </div>
+                    </div>  
                 </div>
             </div>
             <div id="chart">
+                    <div id="container" style="width:100%; height:400px;"></div>  
             </div>
         </div>
     </div>
 </div>
 <script src="recursos/js/highcharts/code/highcharts.js" ></script>
 <script>
-    window.currentRestData = "<?=Link::getRuta("SUPERVISOR","rest/estadisticas/ingresoDiario")?>";
-    window.currenRestChart = "<?=Link::getRuta("SUPERVISOR","estadisticas/chartEstadisticas/ingresoDiario")?>";
+    $('#chart').slideUp();
     
     function requestData() {
             $.ajax({
-                url: currentRestData,
-                success: function(point) {
+                url: "<?=Link::getRuta("SUPERVISOR","rest/estadisticas/restIngresoDiario")?>",
+                success: function(point) {  
                     var series = chart.series[0],
                         shift = series.data.length > 20;
                     chart.series[0].addPoint(point, true, shift);
-                    setTimeout(requestData, 5000);    
+                    setTimeout(requestData, 5000);  
                 },
                 cache: false
             });
         }
-    $('#chart').slideUp();
-    $(document).ready(function (){
-    
-        $.ajax({
-            url:currenRestChart,
-        }).done(function (data, textStatus, jqXHR){
-            console.log(data);
-            $('#chart').append($(data));
-        }).fail(function( jqXHR, textStatus, errorThrown ) {
-            $.modalMsj('error',"Error Fatal, favor reportar el problema.");
-        });
+    $(document).ready(function (){ 
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'container',
+                defaultSeriesType: 'spline',
+                events: {
+                    load: requestData
+                }
+            },
+            title: {
+                text: 'Ingresos Hoy (Vivo)'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150,
+                maxZoom: 20 * 1000
+            },
+            yAxis: {
+                minPadding: 0.2,
+                maxPadding: 0.2,
+                title: {
+                    text: 'Ingresos',
+                    margin: 80
+                }
+            },
+            series: [{
+                name: 'N° Ingresos',
+                data: []
+            }]
+        });   
         $('#loading').slideUp('MEDIUM',function (){
             $('#chart').slideDown('MEDIUN');
-        });
-        $('.list-group a').click(function (){
-            if($(this).hasClass('active')){
-                return false;
-            }
-            $('.list-group a').removeClass('active');
-            currentRestData = $(this).data('rest');
-//            $(this).addClass('active');
-//            $('#chart').children().remove();
         });
     });
 </script>

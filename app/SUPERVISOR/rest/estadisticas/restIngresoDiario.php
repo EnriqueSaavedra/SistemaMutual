@@ -6,7 +6,7 @@ header("Content-type: text/json");
 
 $cursoDao = new CursoDAO();
 
-$x = time() * 5000;
+$x = time() * 1000;
 $y = $cursoDao->getAllIngresosHoy();
 $ret = array($x, $y);
 echo json_encode($ret);
