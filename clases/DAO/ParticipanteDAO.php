@@ -55,7 +55,7 @@ class ParticipanteDAO extends BDconn{
         $sql = $sm->getInsert()." RETURNING id;";
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount() <= 0)
-            throw new Exception("Error al crear participante.");
+            throw new Exception("Error al crear participante. ".$sql);
 
         return $query->fetchColumn();
     }

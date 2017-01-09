@@ -1,8 +1,17 @@
 <?php
 require_once(Link::include_file('clases/BDconn.php'));
+
+//POJOS
 require_once(Link::include_file('clases/DBO/Curso.php'));
+require_once(Link::include_file('clases/DBO/Participante.php'));
 require_once(Link::include_file('clases/DBO/Empresa.php'));
 require_once(Link::include_file('clases/DBO/Rechazos.php'));
+require_once(Link::include_file('clases/utilidad/pojos/CursoExcel.php'));
+
+//DAOS
+require_once(Link::include_file('clases/DAO/GeoDAO.php'));
+require_once(Link::include_file('clases/DAO/ParticipanteDAO.php'));
+require_once(Link::include_file('clases/DAO/UsuarioDAO.php'));
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -16,6 +25,16 @@ require_once(Link::include_file('clases/DBO/Rechazos.php'));
  */
 class CursoDAO extends BDconn {
     //put your code here
+    
+    const ERROR_CREAR_CURSO = 1;
+    const ERROR_CREAR_PARTICIPANTE = 2;
+    const ERROR_CREAR_RELACION = 3;
+    const ERROR_COMUNA = 4;
+    const ERROR_USUARIO = 5;
+    const ERROR_CODIGO_CURSO = 6;
+    const ERROR_CREAR_EMPRESA = 7;
+    const ERROR_CREAR_RELATOR = 8;
+    
     
     public function __construct() {
         parent::__construct();
@@ -59,13 +78,19 @@ class CursoDAO extends BDconn {
         return $query->fetchAll(PDO::FETCH_CLASS,"Origen");
     }
     
-    public function separarRut($rut){
+    public function separarRut($rut,$conDv = false){
         $rutTemporal = "";
-
+        $dvTemporal = "";
         $rutTemporal = str_replace('.','',$rut);
-        $rutTemporal = substr($rutTemporal, 0,strlen($rutTemporal)-2) ;
-
-        return $rutTemporal;
+        $dvTemporal = substr($rutTemporal, strlen($rutTemporal)-1);
+        $rutTemporal = substr($rutTemporal, 0,strlen($rutTemporal)-2);
+        if($conDv == FALSE)
+            return $rutTemporal;
+        else
+            return array(
+                    "rut" => $rutTemporal,
+                    "dv" => $dvTemporal
+            );
     }
 
     public function getEmpresaByRut($rut) {
@@ -100,7 +125,7 @@ class CursoDAO extends BDconn {
         return $query->fetchObject("Relator");
     }
     
-    public function validarCursoRepetido($codigoCurso,$fechaInicio,$comuna,$direccion,$empresa,$relator){
+    public function validarCursoRepetido($codigoCurso,$fechaInicio,$comuna,$empresa,$relator){
         $sql = "SELECT
                     id
                 FROM 
@@ -111,7 +136,7 @@ class CursoDAO extends BDconn {
                     comuna = $comuna AND 
                     empresa = $empresa AND
                     relator = $relator AND
-                    direccion = '$direccion';";
+                    ;";
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount() <= 0)
             return null;
@@ -196,6 +221,8 @@ class CursoDAO extends BDconn {
             $query = $this->pdo->query($sql);
             if(!$query || $query->rowCount() <= 0)
                 return null;
+            
+            
 
             return $query->fetchColumn();
         }
@@ -210,8 +237,9 @@ class CursoDAO extends BDconn {
             $sm = new SQLManager($this->pdo, 'relator', array('id'), $relator);
             $sql = $sm->getInsert()." RETURNING id;";
             $query = $this->pdo->query($sql);
-            if(!$query || $query->rowCount() <= 0)
+            if(!$query || $query->rowCount() <= 0){
                 return null;
+            }
 
             return $query->fetchColumn();
         }
@@ -220,8 +248,34 @@ class CursoDAO extends BDconn {
     public function crearNewCurso(Curso $curso) {
         $empresaID = $this->crearNewEmpresa($curso->detalleEmpresa);
         $relatorID = $this->crearNewRelator($curso->detalleRelator);
-        $dateIni = new DateTime($curso->fecha_inicio);
-        $dateNow = new DateTime();
+        if($curso->fecha_proceso != ""){
+            $fechaAux = str_replace("/","-",$curso->fecha_proceso);
+            if(strlen($fechaAux) <= 9){
+                $posYear = strpos($fechaAux,"-", 3);
+                $posMonth  = strpos($fechaAux,"-");
+                $monthAux = substr($fechaAux, ($posMonth+1), $posYear-3);
+                $yearAux = substr($fechaAux, ($posYear+1));
+                $yearAux = "20".$yearAux;
+                $dateAux = $monthAux."-".substr($fechaAux, 0,($posMonth+1)).$yearAux;
+                $fechaAux = $dateAux;
+            }
+            $dateProceso = new DateTime($fechaAux);
+            $curso->fecha_proceso = $dateProceso->format('Y/m/d');
+        }
+        if($curso->fecha_inicio != ""){
+            $fechaAux = str_replace("/","-",$curso->fecha_inicio);
+            if(strlen($fechaAux) <= 9){
+                $posYear = strpos($fechaAux,"-", 3);
+                $posMonth  = strpos($fechaAux,"-");
+                $monthAux = substr($fechaAux, ($posMonth+1), $posYear-3);
+                $yearAux = substr($fechaAux, ($posYear+1));
+                $yearAux = "20".$yearAux;
+                $dateAux = $monthAux."-".substr($fechaAux, 0,($posMonth+1)).$yearAux;
+                $fechaAux = $dateAux;
+            }
+            $dateIni = new DateTime($fechaAux);
+        }
+        
         $curso->usuario = $_SESSION['USUARIO']['ID'];
         $curso->empresa = $empresaID;
         $curso->relator = $relatorID;
@@ -230,7 +284,7 @@ class CursoDAO extends BDconn {
                 $curso->tipo_curso,
                 $curso->fecha_inicio,
                 $curso->comuna, 
-                $curso->direccion,
+//                $curso->direccion,
                 $curso->empresa, 
                 $curso->relator);
         if(empty($idCursoRepetido)){
@@ -238,7 +292,7 @@ class CursoDAO extends BDconn {
             $sql = $sm->getInsert()." RETURNING id;";
             $query = $this->pdo->query($sql);
             if(!$query || $query->rowCount() <= 0)
-                throw new UserException("Imposible Crear Curso, Problemas con Base de Datos.$sql", UserException::ERROR);
+                throw new UserException("Imposible Crear Curso, Problemas con Base de Datos. $sql", UserException::ERROR);
             
             $curso->id = $query->fetchColumn();
             return $curso;
@@ -251,7 +305,7 @@ class CursoDAO extends BDconn {
             $sm = new SQLManager($this->pdo, 'rechazos', array('id'), $rechazos);
             $sql = $sm->getInsert();
             if(!$this->pdo->query($sql))
-                throw new UserException("Imposible Crear Curso, Problemas con Base de Datos.", UserException::ERROR);
+                throw new UserException("Imposible Crear Curso, Problemas con Base de Datos. $sql", UserException::ERROR);
             
             return $rechazos;
         }
@@ -524,6 +578,17 @@ class CursoDAO extends BDconn {
             }
     }
     
+    public function getOrigenIDByNombre($nombre) {
+        $geoDao = new GeoDAO();
+        $nombre = $geoDao->sanitizeNombre(strtolower($nombre));
+        $sql = "SELECT id FROM origen WHERE lower(nombre) like '%$nombre%'";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0)
+            return  null;
+        
+        return $query->fetchColumn();
+    }
+    
     public function getAllIngresosHoy() {
         $dateActual = new DateTime();
         
@@ -597,5 +662,160 @@ class CursoDAO extends BDconn {
         return $query->fetchColumn();
     }
     
+    public function procesarDatoExcel($arrayDatosExcel) {
+        $cursoExcel = new CursoExcel();
+        $errores = array();
+        if(is_array($arrayDatosExcel[1])){
+            foreach ($arrayDatosExcel[1] as $key => $value) {
+                $valSup = CursoExcel::sinitizeNombres($value);
+                $cursoExcel->$valSup = $key;
+            }
+
+            unset($arrayDatosExcel[1]);
+            $correlativoAux = "";
+            $conDv = true;
+            
+            $geoDao = new GeoDAO();
+            $usuarioDao = new UsuarioDAO();
+            $participanteDao = new ParticipanteDAO();
+            $codCurso = null;
+            $codParticipante = null;
+            
+            foreach ($arrayDatosExcel as $key => $value) {
+                try{
+                    //diferencia Cursos
+                    if($correlativoAux != $value[$cursoExcel->correlativo]){
+                        $curso = new Curso();
+                        $empresa = new Empresa();
+                        $relator = new Relator();
+                        //evaluamos los que son criticos, así cortamos la ejecución lo antes posible
+                        /*@var $empresaSup Empresa*/
+                        $comunaSup = $geoDao->matchComunaNombre($value[$cursoExcel->comuna]);
+                        $usuarioSup = $usuarioDao->getUsuarioCarga($value[$cursoExcel->ejecutivo]);
+                        $cursoSup = $this->getCursoNombre($value[$cursoExcel->cod]);
+                        $empresaSup = $this->getEmpresaByAdherente($value[$cursoExcel->adherente]);
+                        $relatorSup = $this->getRelatorByRut($this->separarRut($value[$cursoExcel->rut_relator]));
+                        $fechaAux = $value[$cursoExcel->fecha_proceso];
+                        
+                        if($comunaSup == null)
+                            throw new Exception("Comuna inexistente ".$value[$cursoExcel->comuna], self::ERROR_COMUNA);
+                        if($usuarioSup == null)
+                            throw new Exception("Problema de sistema, usuario ------------>", self::ERROR_USUARIO);
+                        if($cursoSup == null)
+                            throw new Exception("Curso inexistente ".$value[$cursoExcel->cod],self::ERROR_CODIGO_CURSO);
+                        if($empresaSup == null){
+                            $empresaRutSeparado = $this->separarRut($value[$cursoExcel->rut_empresa], $conDv);
+                            $empresa->rut = $empresaRutSeparado["rut"];
+                            $empresa->dv = $empresaRutSeparado["dv"];
+                            $empresa->adherente = $value[$cursoExcel->adherente];
+                            $empresaSup = $empresa;
+                        }
+                        if($relatorSup == null){
+                            $relatorRutSepardo = $this->separarRut($value[$cursoExcel->rut_relator], $conDv);
+                            $relator->rut = $relatorRutSepardo["rut"];
+                            $relator->dv = $relatorRutSepardo["dv"];
+                            $relator->nombre = $value[$cursoExcel->nombre_relator];
+                            $relatorSup = $relator;
+                        }
+                        $fechaAux = str_replace("/","-",$fechaAux);
+                        if(strlen($fechaAux) >= 9){
+                            $posYear = strpos($fechaAux,"-", 3);
+                            $posMonth  = strpos($fechaAux,"-");
+                            $monthAux = substr($fechaAux, ($posMonth+1), $posYear-3);
+                            $yearAux = substr($fechaAux, ($posYear+1));
+                            $yearAux = "20".$yearAux;
+                            $dateAux = $monthAux."-".substr($fechaAux, 0,($posMonth+1)).$yearAux;
+                            $fechaAux = $dateAux;
+                        }
+                        
+                        $origenSup = $this->getOrigenIDByNombre($value[$cursoExcel->origen]);
+                        
+                        $curso->fecha_inicio = $value[$cursoExcel->fechaini];
+                        $curso->direccion = str_replace("'","", $value[$cursoExcel->direccion]);
+                        $curso->numero_calle = $value[$cursoExcel->numero];
+                        $curso->participantes = $value[$cursoExcel->n_participante];
+                        $curso->contacto_nombre = $value[$cursoExcel->nombre_contacto_empresa_rpl];
+                        $curso->contacto_email = $value[$cursoExcel->email];
+                        $curso->fecha_proceso = $fechaAux;                    
+                        $curso->usuario = $usuarioSup;
+                        $curso->tipo_curso = $value[$cursoExcel->cod];  
+                        $curso->comuna = $comunaSup;
+                        
+                        $curso->origen = ($origenSup != null) ? $origenSup : 1 ;
+                        $curso->detalleEmpresa = $empresaSup;
+                        $curso->detalleRelator = $relatorSup;
+                        //insertarCurso :D
+                        try {
+                            $respuesta = $this->crearNewCurso($curso);
+                        } catch (Exception $exc) {
+                            throw new Exception("Error al crear Curso", self::ERROR_CREAR_CURSO);
+                        }
+
+                        
+                        if($respuesta instanceof Curso)
+                            $codCurso = $respuesta->id;
+                        elseif($respuesta instanceof Rechazos)
+                            $codCurso = $respuesta->id_curso_referencia;
+                        else
+                            throw new Exception("No se encuentra respuesta de Curso");
+                        
+                        $correlativoAux = $value[$cursoExcel->correlativo];
+                    }
+                    //Ingreso Participantes
+                    $participante = new Participante();
+                    
+                    $rutSeparado = $this->separarRut($value[$cursoExcel->rut_participante], $conDv);
+                    
+                    $rutSup = $rutSeparado["rut"];
+                    $dvSup = $rutSeparado["dv"];
+                    $participanteSup = $participanteDao->getParticipanteByRut($rutSup);
+                    
+                    if($participanteSup == null){
+                        $participante->rut = $rutSup;
+                        $participante->dv = $dvSup;
+                        $participante->nombre = str_replace("'","",$value[$cursoExcel->nombre_completo]);
+                        $participante->edad = $value[$cursoExcel->edad];
+                        $participante->sexo = ($value[$cursoExcel->sexo] == 'MASCULINO') ? 'M' : 'F';
+
+                        
+                        try {
+                            $participanteDao->crearNuevoParticipante($participante);
+                        } catch (Exception $exc) {
+                            throw new Exception("Error con el participante rut: ".$value[$cursoExcel->rut_participante], self::ERROR_CREAR_PARTICIPANTE);
+                        }
+
+                    }else{
+                        /*@var $participanteSup Participante*/
+                        $participante->nombre = $value[$cursoExcel->nombre_completo];
+                        $participante->edad = $value[$cursoExcel->edad];
+                        $participante->sexo = ($value[$cursoExcel->sexo] == 'MASCULINO') ? 'M' : 'F';
+                        try {
+                            $participanteDao->actualizarParticipante($participanteSup);
+                        } catch (Exception $exc) {
+                            printArray($exc->getMessage());
+                            throw new Exception("Error con el participante rut: ".$value[$cursoExcel->rut_participante], self::ERROR_CREAR_PARTICIPANTE);
+                        }
+                        $participante = $participanteSup;
+                    }
+                    
+                    
+                    if($codCurso == null || $participante == null)
+                        throw new Exception("Uno de los dos codigos no paso");
+                    try {
+                        $participanteDao->crearRelacionPlanilla($participante, $codCurso, $curso->usuario);
+                    } catch (Exception $exc) {
+                        throw new Exception("Error al crear Relacion de Curso ".$exc->getMessage(), self::ERROR_CREAR_RELACION);
+                    }
+
+                    
+                } catch (Exception $ex) {
+                    $errores[$ex->getCode()][] = $ex->getMessage()." - ".$value[$cursoExcel->correlativo]."<br>";
+                }
+            }
+        }else{
+            throw new Exception("Sin cabecera.");
+        }
+        return $errores;
+    }
     
 }

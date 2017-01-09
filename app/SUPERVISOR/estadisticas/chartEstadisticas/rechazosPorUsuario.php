@@ -38,7 +38,6 @@ try {
       <div class="panel-body">
         <span class="glyphicon glyphicon-dashboard"></span>
         Estadisticas
-        
       </div>
     </div>
     <div class="row">
@@ -60,7 +59,7 @@ try {
                 </div>
             </div>
             <div id="chart">
-                    <div id="container" style="width:100%; height:400px;"></div>  
+                <div id="container" style="width:100%; height:400px;"></div>  
             </div>
         </div>
     </div>

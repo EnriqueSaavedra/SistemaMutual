@@ -41,10 +41,19 @@ class SQLManager{
             throw new Exception("Imposibe obtener estructura de la tabla: \"$tableName\"");
         
         $this->estructura = $estructura;
-        $this->obj = array_filter($obj->toArray());
+        $this->obj = $this->array_filter($obj->toArray());
         $this->tableName = $tableName;
         $this->identificadores = $identificadores;
         
+    }
+    
+    private function array_filter($array) {
+        foreach ($array as $key => $value) {
+            if($value == "" || $value == null){
+                unset($array[$key]);
+            }
+        }
+        return $array;
     }
     
     public function getInsert() { 

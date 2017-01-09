@@ -67,13 +67,16 @@ class Link {
         }
     }
     
-    public static function getRuta($ctx = null,$app = null) {
+    public static function getRuta($ctx = null,$app = null, $ext = "php") {
         $link = new Link($ctx,$app,null);
         if(empty($ctx) && empty($app))
             return 'app/BASE/home.php';
         
         $link->verificarPermiso();
-        return 'app/'.$link->ctx.'/'.$link->app.'.php';
+        if($ext == "php")
+            return 'app/'.$link->ctx.'/'.$link->app.'.php';
+        elseif($ext == "html")
+            return 'app/'.$link->ctx.'/'.$link->app.'.html';
     }
     
     public static function getRutaHref($ctx = null,$app = null,$params = null) {
@@ -91,8 +94,7 @@ class Link {
     }
 
     public static function include_file($rutaRelativa){
-        $baseAux = '/var/www/html/System/'.$rutaRelativa;
-        return $baseAux;
+        return '/var/www/html/System/'.$rutaRelativa;
     }
 
     

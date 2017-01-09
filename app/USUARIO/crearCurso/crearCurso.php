@@ -273,6 +273,21 @@ try {
     var rutRelatoCorrecto = false;
     
     $(document).ready(function (){
+        $("#street_number").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                 // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+                 // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40)) {
+                     // let it happen, don't do anything
+                     return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
         $('#adicional').hide('FAST');
         $('.cuerpo-pre-carga').slideUp('FAST',function (){
             $('.cuerpo-cargado').slideDown('FAST');
@@ -437,10 +452,8 @@ try {
     // [START region_fillform]
     function fillInAddress() {
         $('#street_number').prop("readonly","readonly");
-        $('#comuna').prop('disabled', true);
         $('#comuna').find('option').removeAttr('selected');
-        $('#comuna').selectpicker('refresh');
-        // Get the place details from the autocomplete object.
+        // Get the place details from thee autocomplete object.
         var place = autocomplete.getPlace();
 
         for (var component in componentForm) {
@@ -458,14 +471,12 @@ try {
                 if(addressType == 'locality'){
                     $('#comuna').find('option').filter(function (){
                         return $(this).data("texto").toLowerCase() == val.toLowerCase();
-                    }).attr('selected','selected');
-                    $('#comuna').find('option').removeProp('readonly');
-                    $('#comuna').selectpicker('refresh');
+                    }).attr('selected',true);
                 }
             }
         }
-        $('#comuna').prop('disabled', false);
         $('#street_number').removeProp("readonly");
+        $('#comuna').selectpicker('refresh');
     }
     // [END region_fillform]
 

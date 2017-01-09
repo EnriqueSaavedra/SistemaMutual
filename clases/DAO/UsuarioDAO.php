@@ -47,7 +47,7 @@ class UsuarioDAO extends BDconn{
     public function loginUsuario($email,$clave,$recordar = false){
         $pdo = $this->pdo;
         $clave = md5($clave);
-        $sql = "SELECT * FROM usuario WHERE email = '$email' AND clave = '$clave';";
+        $sql = "SELECT * FROM usuario WHERE email = '$email' AND clave = '$clave' AND activo = 't';";
         $query = $pdo->query($sql);
         if(!$query || $query->rowCount() <= 0)
             return null;
@@ -222,5 +222,47 @@ class UsuarioDAO extends BDconn{
         if(!$query || $query->rowCount() <= 0)
             return null;
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getUsuarioCarga($nombre) {
+        require_once(Link::include_file('clases/utilidad/pojos/CursoExcel.php'));
+        
+        $nombre = $this->sanitizeNombre(strtolower($nombre));
+        $sql = "SELECT id FROM usuario WHERE lower(nombre) like '%$nombre%';";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0){
+            $sql = "SELECT id FROM usuario WHERE nombre like '%".CursoExcel::USER_STANDAR."%'";
+            $query = $this->pdo->query($sql);
+            if(!$query || $query->rowCount() <= 0){
+                return null;
+            }
+        }
+        return $query->fetchColumn();
+    }
+    
+    
+    
+    public function sanitizeNombre($nombre) {
+        $nombre = strtolower(trim($nombre));
+        $search = array(
+                    "Á",
+                    "É",
+                    "Í",
+                    "Ó",
+                    "Ú",
+                    "Ñ",
+                    "  "
+        );
+        $replace = array(
+                    "á",
+                    "é",
+                    "í",
+                    "ó",
+                    "ú",
+                    "ñ",
+                    " "
+        );
+        $nombre = str_replace($search, $replace, $nombre);
+        return $nombre;
     }
 }

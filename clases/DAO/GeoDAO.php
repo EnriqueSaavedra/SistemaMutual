@@ -36,5 +36,39 @@ class GeoDAO extends BDconn {
         
         return $query->fetchAll(PDO::FETCH_CLASS,"Comuna");
     }
+    
+    public function matchComunaNombre($nombre) {
+        $sql =  "SELECT id FROM comuna WHERE lower(nombre) like '%". $this->sanitizeNombre($nombre)."%'";
+        $query = $this->pdo->query($sql);
+        if(!$query || $query->rowCount() <= 0){
+            return null;
+        }
+        return $query->fetchColumn();
+    }
 
+    public function sanitizeNombre($nombre) {
+        $nombre = strtolower(trim($nombre));
+        $search = array(
+                    "Á",
+                    "É",
+                    "Í",
+                    "Ó",
+                    "Ú",
+                    "Ñ",
+                    "  ",
+                    "'"
+        );
+        $replace = array(
+                    "á",
+                    "é",
+                    "í",
+                    "ó",
+                    "ú",
+                    "ñ",
+                    " ",
+                    ""
+        );
+        $nombre = str_replace($search, $replace, $nombre);
+        return $nombre;
+    }
 }

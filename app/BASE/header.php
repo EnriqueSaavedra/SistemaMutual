@@ -101,11 +101,17 @@ function printArray($array){
                         </div>
                         <div class="collapse navbar-collapse adn-nav">
                             <ul class="nav navbar-nav navbar-right">
-                                <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'formularioSabana/formularioSabana'); ?>" class="page-scroll adn-nav-title">EXTRAER SABANA</a></li>
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'adminUsuario/adminUsuario'); ?>" class="page-scroll adn-nav-title">ADMIN USUARIOS</a></li>
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'estadisticas/estadisticas'); ?>" class="page-scroll adn-nav-title">ESTADISTICAS DEL EQUIPO</a></li>
                                 <li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>
                                 <!--<li><a href="#servicios" class="page-scroll adn-nav-title">servicios</a></li>-->
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle adn-nav-title" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">REPORTES<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'formularioSabana/formularioSabana'); ?>" class="page-scroll adn-nav-title">EXTRAER SABANA</a></li>
+                                        <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'cargaCliente/cargaCliente'); ?>" class="page-scroll adn-nav-title">CARGAR EXCEL ANTERIOR</a></li>
+                                    </ul>
+                                </li>
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle adn-nav-title" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Micuenta<span class="caret"></span></a>
                                     <ul class="dropdown-menu">
