@@ -37,7 +37,7 @@ try {
 } catch (UserException $e) {
     $app->addMessage($e->getMessage(), $e->getCode());
 } catch (Exception $e){
-    printArray($e->getMessage());
+    $app->addMessage($e->getMessage(),$e->getCode());
     //loger
 }
 ?>
