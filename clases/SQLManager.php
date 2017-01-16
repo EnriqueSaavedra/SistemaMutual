@@ -49,7 +49,7 @@ class SQLManager{
     
     private function array_filter($array) {
         foreach ($array as $key => $value) {
-            if($value == "" || $value == null){
+            if($value === "" || $value === null){
                 unset($array[$key]);
             }
         }

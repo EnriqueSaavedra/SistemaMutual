@@ -79,3 +79,14 @@ try {
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function (){
+       $('form').submit(function (){
+           $('button[type="submit"]').attr('disabled','disabled');
+           $('button[type="submit"]').removeClass('btn-primary');
+           $('button[type="submit"]').addClass('btn-default');
+           $('button[type="submit"]').text("Guardando...")
+           $('button[type="submit"]').append('<img src="recursos/imagenes/loading.gif" width="30px" />');
+       }); 
+    });
+</script>

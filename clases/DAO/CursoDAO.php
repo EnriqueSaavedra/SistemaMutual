@@ -744,11 +744,13 @@ class CursoDAO extends BDconn {
                         $curso->origen = ($origenSup != null) ? $origenSup : 1 ;
                         $curso->detalleEmpresa = $empresaSup;
                         $curso->detalleRelator = $relatorSup;
+                        if($curso->numero_calle == null || trim($curso->numero_calle) == "")
+                            $curso->numero_calle = 0;
                         //insertarCurso :D
                         try {
                             $respuesta = $this->crearNewCurso($curso);
                         } catch (Exception $exc) {
-                            throw new Exception("Error al crear Curso", self::ERROR_CREAR_CURSO);
+                            throw new Exception("Error al crear Curso ".$exc->getMessage(), self::ERROR_CREAR_CURSO);
                         }
 
                         
@@ -804,7 +806,7 @@ class CursoDAO extends BDconn {
                     try {
                         $participanteDao->crearRelacionPlanilla($participante, $codCurso, $curso->usuario);
                     } catch (Exception $exc) {
-                        throw new Exception("Error al crear Relacion de Curso ".$exc->getMessage(), self::ERROR_CREAR_RELACION);
+                        throw new Exception("Error al crear Relacion de Curso ", self::ERROR_CREAR_RELACION);
                     }
 
                     
