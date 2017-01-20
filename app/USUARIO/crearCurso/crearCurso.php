@@ -40,10 +40,9 @@ try {
         $curso->direccion = $_POST['direccion'];
         $curso->direccion_adicional = $_POST['ofParDep'];
         $curso->comuna  = $_POST['comuna'];
-        $curso->contacto_nombre = $_POST['nombreContacto'];
+        $curso->contacto_nombre = CursoDAO::sanitizeNombres($_POST['nombreContacto']);
         $curso->contacto_email = $_POST['emailContacto'];
         $curso->origen = $_POST['origen'];
-        
         if(!$empresa->setRutCompleto($_POST['empresa']))
             throw new Exception("No se pudo extraer informacion de empresa.");
         
@@ -371,6 +370,12 @@ try {
             }
         });
         
+        $('#autocomplete').keypress(function (e){
+            var reg = new RegExp("[0-9]");
+            if(reg.test(e.key))
+                e.preventDefault();
+        });
+        
         $('#relator').blur(function (){
             var valorRelator = $('#relator').val();
             
@@ -449,6 +454,25 @@ try {
       autocomplete.addListener('place_changed', fillInAddress);
     }
 
+    $('#nRelator').keypress(function (e){
+        var reg = new RegExp("[a-zA-Z]+");
+        if(!reg.test(e.key))
+            e.preventDefault();
+    });
+        
+    $('#nombreContacto').keypress(function (e){
+        var reg = new RegExp("[a-zA-Z]+");
+        if(!reg.test(e.key))
+            e.preventDefault();
+    });
+    
+    $('#adherente, #street_number').keypress(function (e){
+        var reg = new RegExp("[0-9]");
+        if(!reg.test(e.key))
+            e.preventDefault();
+    });
+    
+    
     // [START region_fillform]
     function fillInAddress() {
         $('#street_number').prop("readonly","readonly");

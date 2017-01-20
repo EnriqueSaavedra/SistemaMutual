@@ -60,6 +60,28 @@ class CursoDAO extends BDconn {
         
     }
     
+    public static function sanitizeNombres($nombre){
+        $arrayCaract = array(
+                        "'",
+                        ".",
+                        ",",
+                        "0",
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+        );
+        $arrayRep = array(
+                        ""
+        );
+        return str_replace($arrayCaract, $arrayRep,$nombre);
+    }
+    
     public function getTipoCursoPicker() {
         $sql = "SELECT * FROM tipo_curso;";
         $query = $this->pdo->query($sql);
@@ -135,8 +157,7 @@ class CursoDAO extends BDconn {
                     fecha_inicio = '$fechaInicio' AND 
                     comuna = $comuna AND 
                     empresa = $empresa AND
-                    relator = $relator AND
-                    ;";
+                    relator = $relator ;";
         $query = $this->pdo->query($sql);
         if(!$query || $query->rowCount() <= 0)
             return null;
@@ -234,6 +255,7 @@ class CursoDAO extends BDconn {
         if($id != null)
             return $id;
         else{
+            $relator->nombre = self::sanitizeNombres($relator->nombre);
             $sm = new SQLManager($this->pdo, 'relator', array('id'), $relator);
             $sql = $sm->getInsert()." RETURNING id;";
             $query = $this->pdo->query($sql);
@@ -750,7 +772,7 @@ class CursoDAO extends BDconn {
                         try {
                             $respuesta = $this->crearNewCurso($curso);
                         } catch (Exception $exc) {
-                            throw new Exception("Error al crear Curso ".$exc->getMessage(), self::ERROR_CREAR_CURSO);
+                            throw new Exception("Error al crear Curso ", self::ERROR_CREAR_CURSO);
                         }
 
                         
@@ -775,7 +797,7 @@ class CursoDAO extends BDconn {
                     if($participanteSup == null){
                         $participante->rut = $rutSup;
                         $participante->dv = $dvSup;
-                        $participante->nombre = str_replace("'","",$value[$cursoExcel->nombre_completo]);
+                        $participante->nombre = self::sanitizeNombres($value[$cursoExcel->nombre_completo]);
                         $participante->edad = $value[$cursoExcel->edad];
                         $participante->sexo = ($value[$cursoExcel->sexo] == 'MASCULINO') ? 'M' : 'F';
 

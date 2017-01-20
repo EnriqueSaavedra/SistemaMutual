@@ -227,7 +227,7 @@ if($curso != null){
                         <div class="col-md-3 col-lg-3">
                             <div class="form-group">
                                 <label for="participanteEdad">Edad</label>
-                                <input type="number"  class="form-control" required=""  name="participanteEdad" id="participanteEdad" placeholder="Edad del Participante">
+                                <input type="number"  class="form-control" required="" maxlength="3"  name="participanteEdad" id="participanteEdad" placeholder="Edad del Participante">
                             </div>
                         </div>
                         <div class="col-md-3 col-lg-3">
@@ -398,7 +398,19 @@ if($curso != null){
             });
         });
         
-    
+        $('#participanteNombre').keypress(function (e){
+            var reg = new RegExp("[a-zA-Z]+");
+//            console.log(e.key);
+            if(!reg.test(e.key))
+                e.preventDefault();
+        });
+        
+        $('#participanteEdad').keypress(function (e){
+            var reg = new RegExp("[0-9]+");
+            if(!reg.test(e.key))
+                e.preventDefault();
+        });
+        
         $("#participanteRut").rut({
             formatOn: 'blur',
             minimumLength: 8, // validar largo mínimo; default: 2

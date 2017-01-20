@@ -3,6 +3,7 @@ require_once('./../../../../clases/utilidad/Link.php');
 require_once(Link::include_file('clases/utilidad/RestData.php'));
 require_once(Link::include_file('clases/utilidad/UserException.php'));
 require_once(Link::include_file('clases/DAO/ParticipanteDAO.php'));
+require_once(Link::include_file('clases/DAO/CursoDAO.php'));
 
 
 $restData = new RestData();
@@ -14,7 +15,7 @@ try {
     
     $idUSuario = $_POST['usuario'];
     $idCurso = $_POST['curso'];
-    $participante->nombre = $_POST['nombre'];
+    $participante->nombre = CursoDAO::sanitizeNombres($_POST['nombre']);
     $participante->setRutCompleto($_POST['rut']); 
     $participante->email = $_POST['email'];
     $participante->edad = $_POST['edad'];

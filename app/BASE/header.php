@@ -73,7 +73,7 @@ function printArray($array){
                             <ul class="nav navbar-nav navbar-right">
                                 <li><a href="<?php echo Link::getRutaHref('USUARIO', 'crearCurso/crearCurso'); ?>" class="page-scroll adn-nav-title">CREAR CURSO</a></li>
                                 <li><a href="<?php echo Link::getRutaHref('USUARIO', 'misCursos/misCursos'); ?>" class="page-scroll adn-nav-title">MIS CURSOS INGRESADOS</a></li>
-                                <li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>
+                                <!--<li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>-->
                                 <!--<li><a href="#servicios" class="page-scroll adn-nav-title">servicios</a></li>-->
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle adn-nav-title" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Micuenta<span class="caret"></span></a>
@@ -103,7 +103,7 @@ function printArray($array){
                             <ul class="nav navbar-nav navbar-right">
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'adminUsuario/adminUsuario'); ?>" class="page-scroll adn-nav-title">ADMIN USUARIOS</a></li>
                                 <li><a href="<?php echo Link::getRutaHref('SUPERVISOR', 'estadisticas/estadisticas'); ?>" class="page-scroll adn-nav-title">ESTADISTICAS DEL EQUIPO</a></li>
-                                <li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>
+                                <!--<li><a href="#nosotros" class="page-scroll adn-nav-title"><del>Notificaciones <span class="badge">0</span></del></a></li>-->
                                 <!--<li><a href="#servicios" class="page-scroll adn-nav-title">servicios</a></li>-->
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle adn-nav-title" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">REPORTES<span class="caret"></span></a>

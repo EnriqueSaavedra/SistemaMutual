@@ -41,9 +41,11 @@ try{
         $fecha_proceso = new DateTime($value['fecha_proceso']);
         $fecha_inicio = new DateTime($value['fecha_inicio']);
         $fecha_termino = new DateTime($value['fecha_termino']);
+        $fecha_vigencia = new DateTime($value['vigencia_capacitacion']);
+        
         $Datos .=   strtoupper($value['id_curso']).";".
                     strtoupper($fecha_proceso->format('d-m-Y')).";".
-                    strtoupper($value['vigencia_capacitacion']).";".
+                    strtoupper($fecha_vigencia->format('d-m-Y')).";".
                     strtoupper($fecha_inicio->format('d-m-Y')).";".
                     strtoupper($fecha_termino->format('d-m-Y')).";".
                     strtoupper($value['desc1']).";".
