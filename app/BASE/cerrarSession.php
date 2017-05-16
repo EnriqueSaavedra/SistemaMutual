@@ -10,4 +10,4 @@ if (isset($_SERVER['HTTP_COOKIE'])) {
 }
 session_destroy();
 Link::redirect('BASE','home');
-
+echo "asdasd";
